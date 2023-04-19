@@ -24,7 +24,7 @@ def extract_next_links(url, resp):
         return list()
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser') # convert the content of the website to BeautifulSoup
 
-    if len(soup.get_text()) <= 300:
+    if len(soup.get_text()) <= WORD_THRESHOLD:
         return list()
 
     urls = []
