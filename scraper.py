@@ -1,5 +1,8 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
+
+WORD_THRESHOLD = 300
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -15,7 +18,23 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+
+    # check that the return code is valid 
+    if resp.status != 200 or resp == None:
+        return list()
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser') # convert the content of the website to BeautifulSoup
+
+    if len(soup.get_text()) <= 300:
+        return list()
+
+    urls = []
+    for link in soup.find_all('a'): # retrieve all urls from the soup
+        link = link.get('href')
+        if link != None:
+            urls.append(link.split('#')[0])
+        #print(urls[-1])
+    
+    return urls
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -23,8 +42,19 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
+
+        if parsed is None or parsed.hostname is None:
+            return False
+
         if parsed.scheme not in set(["http", "https"]):
             return False
+
+        # check that we have a valid domain specified by the assignment constraints
+        valid_suffix_list = [r'^.+\.ics\.uci\.edu.*$', r'^.+\.cs\.uci\.edu.*$'\
+                            , r'^.+\.informatics\.uci\.edu.*$', r'^.+\.stat\.uci\.edu.*$']
+        if all([re.match(domain, parsed.hostname)==None for domain in valid_suffix_list]):
+            return False
+        
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -38,3 +68,4 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
