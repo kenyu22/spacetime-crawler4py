@@ -20,9 +20,9 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
     # check that the return code is valid 
-    if resp.status != 200 or resp == None:
+    if resp == None or resp.status != 200:
         return list()
-    soup = BeautifulSoup(resp.raw_response.content, 'html.parser') # convert the content of the website to BeautifulSoup
+    soup = BeautifulSoup(resp.raw_response.content, 'lxml') # convert the content of the website to BeautifulSoup
 
     if len(soup.get_text()) <= WORD_THRESHOLD:
         return list()
