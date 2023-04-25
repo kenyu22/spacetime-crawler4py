@@ -14,7 +14,9 @@ simhash_indicies = SimhashIndex([(str(k), Simhash(get_features(v))) for k, v in 
 unique_links = set()
 # report 2
 max_word_link = ''
-max_words = 0
+max_words = -1
+# report 4
+subdomains = dict()
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -49,18 +51,16 @@ def extract_next_links(url, resp):
         simhash_dict[sh_obj.value] = sh_obj
         simhash_indicies.add(sh_obj.value, sh_obj)
 
+    ##################################### Report #1
+    unique_links.add(url) # keep track of the valid links in a set
+
     ##################################### Longest page for report #2
     words = [word.lower() for word in re.findall(r"[a-zA-Z][a-zA-Z0-9]*'?[a-zA-Z0-9]*", soup.get_text())]
     num_words = len(words)
-    global max_words
-    if max_words is None:
+    global max_words, max_word_link
+    if max_words < num_words:
         max_words = num_words
-    elif max_words < num_words:
-        max_words = num_words
-        global max_word_link
         max_word_link = url
-    
-    unique_links.add(url) # keep track of the valid links in a set
 
     urls = []
     for link in soup.find_all('a'): # retrieve all urls from the soup
@@ -141,7 +141,6 @@ def is_valid(url):
         # filter certain datasets in the ml archive
         if re.match(r'.*datasets.php.*', parsed.path.lower()) != None and re.match(f'.*format=.*', parsed.query) != None:
             return False
-
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
