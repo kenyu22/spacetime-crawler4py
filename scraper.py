@@ -1,8 +1,14 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
+from simhash import Simhash, SimhashIndex
 
-WORD_THRESHOLD = 300
+CHAR_THRESHOLD = 300
+MAX_SUBDOMAIN_THRESHOLD = 10
+trap_subdomain_urls = dict()
+# contains a dictionary of text data of all the urls with the same path but different queries
+simhash_dict = dict()
+simhash_indicies = SimhashIndex([(str(k), Simhash(get_features(v))) for k, v in simhash_dict.items()], k=3)
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -20,18 +26,27 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
     # check that the return code is valid 
-    if resp == None or resp.status != 200:
+    if resp == None or resp.status != 200 or resp.raw_response == None:
         return list()
     soup = BeautifulSoup(resp.raw_response.content, 'lxml') # convert the content of the website to BeautifulSoup
 
-    if len(soup.get_text()) <= WORD_THRESHOLD:
+    if len(soup.get_text()) <= CHAR_THRESHOLD:
         return list()
+
+    sh_obj = Simhash(get_features(soup.get_text()))
+    if sh_obj.value in simhash_dict: # check for exact duplicates
+        return list()
+    elif len(simhash_indicies.get_near_dups(sh_obj)) != 0: # check for near duplicates via simhash
+        return list()
+    else: # store simhash object data and indicies for future comparisons
+        simhash_dict[sh_obj.value] = sh_obj
+        simhash_indicies.add(sh_obj.value, sh_obj)
 
     urls = []
     for link in soup.find_all('a'): # retrieve all urls from the soup
-        link = link.get('href')
+        link = urljoin(url, link.get('href')) # convert relative url to absolute
         if link != None:
-            urls.append(link.split('#')[0])
+            urls.append(link.split('#')[0]) # defragment the url before appending it to the frontier
         #print(urls[-1])
     
     return urls
@@ -54,6 +69,59 @@ def is_valid(url):
                             , r'^.+\.informatics\.uci\.edu.*$', r'^.+\.stat\.uci\.edu.*$']
         if all([re.match(domain, parsed.hostname)==None for domain in valid_suffix_list]):
             return False
+
+        # common trap patterns
+        trap_detection_patterns = [
+                                    r'.*/appointment.*', # for appointment trap detection
+                                    r'.*/calendar.*'     # for calendar trap detection
+                                    ]
+
+        if any(re.match(pattern, parsed.path.lower()) != None for pattern in trap_detection_patterns):
+            return False
+
+        # avoid repeated patterns
+        # r"^.*?(/.+?/).*?\1.*$"
+        # r'^.*(/\S+)\1+.*$'
+        if re.match(r'^.*?(/.+?/).*?\1.*$', parsed.path.lower()) != None:
+            return False
+
+        ##################################### website trap detection (swiki, wiki, gitlab, etc.)
+        # for every path that we enter for websites such as swiki or wiki, only get max 
+        # threshold # of websites of each path/subdirectory and disregard the query
+        #
+        # We don't want to completely disregard all paths, but since accessing every
+        # possible query within the paths leads to a trap, we will only retrieve a 
+        # certain threshold amount from each path within the website.
+        #
+        # We saw that query specific links within the same path didn't have any
+        # additional useful information
+        trap_patterns = [r'.*swiki.*', r'.*wiki.*', r'.*elms.*', r'.*gitlab.*']
+        if any(re.match(pattern, parsed.hostname.lower()) != None for pattern in trap_patterns):
+            # url without the query
+            no_q = url.split('?')[0]
+            if trap_subdomain_urls.get(no_q, 0) > MAX_SUBDOMAIN_THRESHOLD:
+                return False
+            else:
+                trap_subdomain_urls[no_q] = trap_subdomain_urls.get(no_q, 0) + 1
+
+        ##################################### gitlab specific "traps"
+        # we will deem some parts of gitlab repos as pages with low information content
+        # such as project specific commit/commit histories
+        if re.match(r'.*gitlab.*', parsed.hostname.lower()) != None:
+            gitlab_filters =   [r'.*/commits/.*', 
+                                r'.*/commit/.*', 
+                                r'.*/graphs/.*', 
+                                r'.*/network/.*', 
+                                r'.*/tree/.*',
+                                r'.*/raw/.*',
+                                r'.*/find_file/.*']
+            if any(re.match(pattern, parsed.path.lower()) != None for pattern in gitlab_filters):
+                return False
+
+        # filter certain datasets in the ml archive
+        if re.match(r'.*datasets.php.*', parsed.path.lower()) != None and re.match(f'.*format=.*', parsed.query) != None:
+            return False
+
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -63,8 +131,16 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
+            + r"|mpe?g|ppsx|img|war|py|java|c|asm|atom|apk|rs|ds_store|git" # additional extensions to filter
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+# Reference: https://leons.im/posts/a-python-implementation-of-simhash-algorithm/
+def get_features(s):
+    width = 3
+    s = s.lower()
+    s = re.sub(r'[^\w]+', '', s)
+    return [s[i:i + width] for i in range(max(len(s) - width + 1, 1))]
