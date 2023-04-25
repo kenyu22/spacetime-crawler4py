@@ -62,8 +62,6 @@ def extract_next_links(url, resp):
         max_words = num_words
         max_word_link = url
     
-    
-    
 
     ##################################### Calculating total amount of subdomains - #4
     icsCheck = r'^.+\.ics\.uci\.edu.*$' #See if the url contains ics.uci.edu
@@ -75,8 +73,6 @@ def extract_next_links(url, resp):
                 domainList[subDomain.hostname] += 1 #if already in dictionary increment the count
             else:
                 domainList[subDomain.hostname] = 1  #if not add the key to the dictionary with count of 1 as value
-            
-    
 
     urls = []
     for link in soup.find_all('a'): # retrieve all urls from the soup
