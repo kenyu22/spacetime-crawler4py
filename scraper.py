@@ -15,6 +15,7 @@ unique_links = set()
 # report 2
 max_word_link = ''
 max_words = 0
+domainList = {}
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -49,7 +50,7 @@ def extract_next_links(url, resp):
         simhash_dict[sh_obj.value] = sh_obj
         simhash_indicies.add(sh_obj.value, sh_obj)
 
-    ##################################### Longest page for report #2
+    ##################################### Longest page for report - #2
     words = [word.lower() for word in re.findall(r"[a-zA-Z][a-zA-Z0-9]*'?[a-zA-Z0-9]*", soup.get_text())]
     num_words = len(words)
     global max_words
@@ -61,6 +62,21 @@ def extract_next_links(url, resp):
         max_word_link = url
     
     unique_links.add(url) # keep track of the valid links in a set
+    
+    
+
+    ##################################### Calculating total amount of subdomains - #4
+    icsCheck = r'^.+\.ics\.uci\.edu.*$' #See if the url contains ics.uci.edu
+    subDomain = urlparse(url) 
+    
+    if re.match(icsCheck, subDomain.hostname): 
+        if subDomain.hostname != 'www.ics.uci.edu': #check to see if it's the original domain
+            if subDomain.hostname in domainList: 
+                domainList[subDomain.hostname] += 1 #if already in dictionary increment the count
+            else:
+                domainList[subDomain.hostname] = 1  #if not add the key to the dictionary with count of 1 as value
+            
+    
 
     urls = []
     for link in soup.find_all('a'): # retrieve all urls from the soup
@@ -174,6 +190,11 @@ def generate_report():
     # Question 2
     question_2 = ['2. What is the longest page in terms of the number of words? \n', f'The longest page in terms of the number of words is {max_word_link}.\n\n']
     # Question 3
+    
+    # Question 4
+    sortedDict = dict(sorted(domainList.items(), key=lambda x: x[0].lower()))
+    joinVar = '\n'
+    question_4 = ['4. How many subdomains did you find in the ics.uci.edu domain? \n', f'{len(domainList.keys())} total subdomains in ics.uci.edu \n', f'{joinVar.join(f"{key} {value}" for key, value in domainList.items())}']
 
     # write answers to report file
     for i in range(4):
