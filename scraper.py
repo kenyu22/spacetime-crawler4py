@@ -9,7 +9,10 @@ trap_subdomain_urls = dict()
 # contains a dictionary of text data of all the urls with the same path but different queries
 simhash_dict = dict()
 simhash_indicies = SimhashIndex([(str(k), Simhash(get_features(v))) for k, v in simhash_dict.items()], k=3)
+
+# report 1
 unique_links = set()
+# report 2
 max_word_link = ''
 max_words = 0
 
@@ -36,6 +39,7 @@ def extract_next_links(url, resp):
     if len(soup.get_text()) <= CHAR_THRESHOLD:
         return list()
 
+    #####################################  Simhash similarity
     sh_obj = Simhash(get_features(soup.get_text()))
     if sh_obj.value in simhash_dict: # check for exact duplicates
         return list()
@@ -45,6 +49,7 @@ def extract_next_links(url, resp):
         simhash_dict[sh_obj.value] = sh_obj
         simhash_indicies.add(sh_obj.value, sh_obj)
 
+    ##################################### Longest page for report #2
     words = [word.lower() for word in re.findall(r"[a-zA-Z][a-zA-Z0-9]*'?[a-zA-Z0-9]*", soup.get_text())]
     num_words = len(words)
     global max_words
@@ -159,6 +164,7 @@ def get_features(s):
     s = s.lower()
     s = re.sub(r'[^\w]+', '', s)
     return [s[i:i + width] for i in range(max(len(s) - width + 1, 1))]
+
 def generate_report():
     # generate the report with all questions from canvas and their corresponding answers
     report = open('report.txt', 'w')
