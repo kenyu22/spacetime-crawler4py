@@ -11,7 +11,7 @@ trap_subdomain_urls = dict()
 simhash_dict = dict()
 simhash_indicies = SimhashIndex([(str(k), Simhash(get_features(v))) for k, v in simhash_dict.items()], k=3)
 # contains a dictionary that stores the 50 most common words
-fequency_dict = dict()
+frequency_dict = dict()
 
 # report 1
 unique_links = set()
@@ -196,7 +196,7 @@ def generate_report():
     # Question 2
     question_2 = ['2. What is the longest page in terms of the number of words? \n', f'The longest page in terms of the number of words is {max_word_link}.\n\n']
     # Question 3
-    global frquency_dict
+    global frequency_dict
     sorted_freq = [i for i in sorted(frequency_dict.items(), key=lambda x: (-x[1], x[0]))]
     word_str = ''
     for i in range(50):
