@@ -1,0 +1,19 @@
+question_1
+1. How many unique pages did you find? 
+There are 0 unique links.
+
+
+question_2
+2. What is the longest page in terms of the number of words? 
+The longest page in terms of the number of words is .
+
+
+question_3
+3. What are the 50 most common words in the entire set of pages crawled under these domains? 
+The 50 most common words are listed as follows:
+
+
+question_4
+4. How many subdomains did you find in the ics.uci.edu domain? 
+0 total subdomains in ics.uci.edu 
+

@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from simhash import Simhash, SimhashIndex
 
 CHAR_THRESHOLD = 300
-MAX_SUBDOMAIN_THRESHOLD = 10
+MAX_SUBDOMAIN_THRESHOLD = 2
 STOP_WORDS = {'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', "can't", 'cannot', 'could', "couldn't", 'did', "didn't", 'do', 'does', "doesn't", 'doing', "don't", 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had', "hadn't", 'has', "hasn't", 'have', "haven't", 'having', 'he', "he'd", "he'll", "he's", 'her', 'here', "here's", 'hers', 'herself', 'him', 'himself', 'his', 'how', "how's", 'i', "i'd", "i'll", "i'm", "i've", 'if', 'in', 'into', 'is', "isn't", 'it', "it's", 'its', 'itself', "let's", 'me', 'more', 'most', "mustn't", 'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', "shan't", 'she', "she'd", "she'll", "she's", 'should', "shouldn't", 'so', 'some', 'such', 'than', 'that', "that's", 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', "there's", 'these', 'they', "they'd", "they'll", "they're", "they've", 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', "wasn't", 'we', "we'd", "we'll", "we're", "we've", 'were', "weren't", 'what', "what's", 'when', "when's", 'where', "where's", 'which', 'while', 'who', "who's", 'whom', 'why', "why's", 'with', "won't", 'would', "wouldn't", 'you', "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves'}
 trap_subdomain_urls = dict()
 # contains a dictionary of text data of all the urls with the same path but different queries
@@ -157,7 +157,8 @@ def is_valid(url):
                                 r'.*/network/.*', 
                                 r'.*/tree/.*',
                                 r'.*/raw/.*',
-                                r'.*/find_file/.*']
+                                r'.*/find_file/.*',
+                                r'.*/blame/.*']
             if any(re.match(pattern, parsed.path.lower()) != None for pattern in gitlab_filters):
                 return False
 
@@ -191,24 +192,27 @@ def generate_report():
     # generate the report with all questions from canvas and their corresponding answers
     report = open('report.txt', 'w')
 
+    questions = []
+
     # Question 1
-    question_1 = ['1. How many unique pages did you find? \n', f'There are {len(unique_links)} unique links.\n\n']
+    questions.append(f'1. How many unique pages did you find? \nThere are {len(unique_links)} unique links.\n\n')
     # Question 2
-    question_2 = ['2. What is the longest page in terms of the number of words? \n', f'The longest page in terms of the number of words is {max_word_link}.\n\n']
+    questions.append(f'2. What is the longest page in terms of the number of words? \nThe longest page in terms of the number of words is {max_word_link}.\n\n')
     # Question 3
     global frequency_dict
-    sorted_freq = [i for i in sorted(frequency_dict.items(), key=lambda x: (-x[1], x[0]))]
+    sorted_freq = sorted(frequency_dict.items(), key=lambda x: (-x[1], x[0]))
     word_str = ''
-    for i in range(50):
-        word_str = word_str + 'Word '+(i+1)+': '+sorted_freq[i][0]+', Frequency: '+sorted_freq[i][1]+'\n'
-    question_3 = ['3. What are the 50 most common words in the entire set of pages crawled under these domains? \n', f'The 50 most common words are listed as follows:\n{word_str}\n']
+    for i, (word, frequency) in enumerate(sorted_freq[:50]):
+        word_str += f'Word {(i+1)}: {w}, Frequency: {frequency}\n'
+    questions.append(f'3. What are the 50 most common words in the entire set of pages crawled under these domains? \nThe 50 most common words are listed as follows:\n{word_str}\n')
     # Question 4
     sortedDict = dict(sorted(domainList.items(), key=lambda x: x[0].lower()))
     joinVar = '\n'
-    question_4 = ['4. How many subdomains did you find in the ics.uci.edu domain? \n', f'{len(domainList.keys())} total subdomains in ics.uci.edu \n', f'{joinVar.join(f"{key} {value}" for key, value in domainList.items())}']
+    questions.append(f'4. How many subdomains did you find in the ics.uci.edu domain? \n{len(domainList.keys())} total subdomains in ics.uci.edu \n{joinVar.join(f"{key} {value}" for key, value in domainList.items())}')
 
     # write answers to report file
     for i in range(4):
-        report.writelines(f'question_{i+1}')
+        report.writelines(f'question_{i+1}\n{questions[i]}\n')
+
     # close the report after all questions have been answered
     report.close()
