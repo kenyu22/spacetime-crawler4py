@@ -11,14 +11,15 @@ trap_subdomain_urls = dict()
 # contains a dictionary of text data of all the urls with the same path but different queries
 simhash_dict = dict()
 simhash_indicies = SimhashIndex([(str(k), Simhash(get_features(v))) for k, v in simhash_dict.items()], k=3)
-# contains a dictionary that stores the 50 most common words
-frequency_dict = dict()
 
 # report 1
 unique_links = set()
 # report 2
 max_word_link = ''
 max_words = -1
+# report 3 
+# contains a dictionary that stores the 50 most common words
+frequency_dict = dict()
 # report 4
 domainList = {}
 
@@ -107,7 +108,7 @@ def extract_next_links(url, resp):
     ##################################### Json File Dump
     out_dict = {
         'frequency_dict': frequency_dict,
-        'unique_links' : unique_links,
+        'unique_links' : list(unique_links),
         'max_word_link' : max_word_link,
         'max_words' : max_words,
         'domainList' : domainList
@@ -217,21 +218,25 @@ def generate_report():
 
     questions = []
 
+    # get global variables
+    global frequency_dict, unique_links, max_word_link, max_words, domainList
+
     # Question 1
     questions.append(f'1. How many unique pages did you find? \nThere are {len(unique_links)} unique links.\n\n')
     # Question 2
     questions.append(f'2. What is the longest page in terms of the number of words? \nThe longest page in terms of the number of words is {max_word_link}.\n\n')
     # Question 3
-    global frequency_dict
+    # global frequency_dict
     sorted_freq = sorted(frequency_dict.items(), key=lambda x: (-x[1], x[0]))
     word_str = ''
     for i, (word, frequency) in enumerate(sorted_freq[:50]):
         word_str += f'Word {(i+1)}: {w}, Frequency: {frequency}\n'
     questions.append(f'3. What are the 50 most common words in the entire set of pages crawled under these domains? \nThe 50 most common words are listed as follows:\n{word_str}\n')
     # Question 4
-    sortedDict = dict(sorted(domainList.items(), key=lambda x: x[0].lower()))
-    joinVar = '\n'
-    questions.append(f'4. How many subdomains did you find in the ics.uci.edu domain? \n{len(domainList.keys())} total subdomains in ics.uci.edu \n{joinVar.join(f"{key} {value}" for key, value in domainList.items())}')
+    subdomain_str = f'4. How many subdomains did you find in the ics.uci.edu domain? \n{len(domainList.keys())} total subdomains in ics.uci.edu \n'
+    for key, value in sorted(domainList.items(), key=lambda x: x[0].lower()):
+        subdomain_str += f'{key}, {value}'
+    questions.append(subdomain_str)
 
     # write answers to report file
     for i in range(4):
