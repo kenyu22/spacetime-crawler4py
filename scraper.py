@@ -2,6 +2,7 @@ import re
 from urllib.parse import urlparse, urljoin
 from bs4 import BeautifulSoup
 from simhash import Simhash, SimhashIndex
+import json
 
 CHAR_THRESHOLD = 300
 MAX_SUBDOMAIN_THRESHOLD = 2
@@ -53,6 +54,17 @@ def extract_next_links(url, resp):
     else: # store simhash object data and indicies for future comparisons
         simhash_dict[sh_obj.value] = sh_obj
         simhash_indicies.add(sh_obj.value, sh_obj)
+    
+    # get global variables
+    global frequency_dict, unique_links, max_word_link, max_words, domainList
+    ##################################### Json File Read
+    with open("report_data.json", "r") as readfile:
+        data = json.loads(readfile.read())
+        frequency_dict = data['frequency_dict']
+        unique_links = set(data['unique_links'])
+        max_word_link = data['max_word_link']
+        max_words = data['max_words']
+        domainList = data['domainList']
 
     ##################################### Report #1
     unique_links.add(url) # keep track of the valid links in a set
@@ -60,13 +72,13 @@ def extract_next_links(url, resp):
     ##################################### Longest page for report #2
     words = [word.lower() for word in re.findall(r"[a-zA-Z][a-zA-Z0-9]*'?[a-zA-Z0-9]*", soup.get_text())]
     num_words = len(words)
-    global max_words, max_word_link
+    # global max_words, max_word_link
     if max_words < num_words:
         max_words = num_words
         max_word_link = url
     
     ##################################### Most frequent words for report #3
-    global frequency_dict
+    # global frequency_dict
     for tok in words:
         if tok not in STOP_WORDS:
             if tok not in frequency_dict:
@@ -92,6 +104,17 @@ def extract_next_links(url, resp):
             urls.append(link.split('#')[0]) # defragment the url before appending it to the frontier
         #print(urls[-1])
     
+    ##################################### Json File Dump
+    out_dict = {
+        'frequency_dict': frequency_dict,
+        'unique_links' : unique_links,
+        'max_word_link' : max_word_link,
+        'max_words' : max_words,
+        'domainList' : domainList
+    }
+    with open("report_data.json", "w") as outfile:
+        json.dump(out_dict, outfile)
+
     return urls
 
 def is_valid(url):
