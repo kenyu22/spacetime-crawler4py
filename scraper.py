@@ -71,7 +71,7 @@ def extract_next_links(url, resp):
     unique_links.add(url) # keep track of the valid links in a set
 
     ##################################### Longest page for report #2
-    words = [word.lower() for word in re.findall(r"[a-zA-Z][a-zA-Z0-9]*'?[a-zA-Z0-9]*", soup.get_text())]
+    words = [word.lower() for word in re.findall(r"[a-zA-Z][a-zA-Z0-9]+'?[a-zA-Z0-9]*", soup.get_text())]
     num_words = len(words)
     # global max_words, max_word_link
     if max_words < num_words:
@@ -224,7 +224,7 @@ def generate_report():
     # Question 1
     questions.append(f'1. How many unique pages did you find? \nThere are {len(unique_links)} unique links.\n\n')
     # Question 2
-    questions.append(f'2. What is the longest page in terms of the number of words? \nThe longest page in terms of the number of words is {max_word_link}.\n\n')
+    questions.append(f'2. What is the longest page in terms of the number of words? \nThe longest page in terms of the number of words is {max_word_link} with {max_words} words.\n\n')
     # Question 3
     # global frequency_dict
     sorted_freq = sorted(frequency_dict.items(), key=lambda x: (-x[1], x[0]))
