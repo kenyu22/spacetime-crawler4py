@@ -183,7 +183,7 @@ def is_valid(url):
                                 r'.*/raw/.*',
                                 r'.*/find_file/.*',
                                 r'.*/blame/.*',
-                                r'.*/tags(/.*)?$*',
+                                r'.*/tags(/.*)?$',
                                 r'.*/incidents(/.*)?$']
             if any(re.match(pattern, parsed.path.lower()) != None for pattern in gitlab_filters):
                 return False
