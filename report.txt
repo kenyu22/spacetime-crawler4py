@@ -1,19 +1,171 @@
 question_1
 1. How many unique pages did you find? 
-There are 0 unique links.
+There are 12369 unique links.
 
 
 question_2
 2. What is the longest page in terms of the number of words? 
-The longest page in terms of the number of words is .
+The longest page in terms of the number of words is http://www.ics.uci.edu/~kay/wordlist.txt with 385020 words.
 
 
 question_3
 3. What are the 50 most common words in the entire set of pages crawled under these domains? 
 The 50 most common words are listed as follows:
+Word 1: gitlab, Frequency: 39273
+Word 2: research, Frequency: 34482
+Word 3: computer, Frequency: 29106
+Word 4: uci, Frequency: 28044
+Word 5: can, Frequency: 27253
+Word 6: data, Frequency: 26586
+Word 7: information, Frequency: 25804
+Word 8: ics, Frequency: 21036
+Word 9: students, Frequency: 19339
+Word 10: project, Frequency: 18216
+Word 11: news, Frequency: 17650
+Word 12: will, Frequency: 17386
+Word 13: events, Frequency: 17036
+Word 14: projects, Frequency: 16959
+Word 15: school, Frequency: 16904
+Word 16: science, Frequency: 16901
+Word 17: student, Frequency: 16478
+Word 18: use, Frequency: 16178
+Word 19: policies, Frequency: 16096
+Word 20: new, Frequency: 15583
+Word 21: bren, Frequency: 15559
+Word 22: software, Frequency: 14722
+Word 23: time, Frequency: 14324
+Word 24: contact, Frequency: 13501
+Word 25: support, Frequency: 13337
+Word 26: set, Frequency: 13213
+Word 27: example, Frequency: 13198
+Word 28: one, Frequency: 12820
+Word 29: help, Frequency: 12309
+Word 30: graduate, Frequency: 12195
+Word 31: may, Frequency: 11903
+Word 32: using, Frequency: 11717
+Word 33: id, Frequency: 11228
+Word 34: also, Frequency: 10919
+Word 35: computing, Frequency: 10887
+Word 36: university, Frequency: 10798
+Word 37: group, Frequency: 10740
+Word 38: learning, Frequency: 10715
+Word 39: faculty, Frequency: 10557
+Word 40: irvine, Frequency: 10487
+Word 41: people, Frequency: 10424
+Word 42: design, Frequency: 10222
+Word 43: informatics, Frequency: 10170
+Word 44: name, Frequency: 10166
+Word 45: engineering, Frequency: 10109
+Word 46: course, Frequency: 10045
+Word 47: com, Frequency: 10030
+Word 48: undergraduate, Frequency: 9820
+Word 49: user, Frequency: 9553
+Word 50: search, Frequency: 9362
 
 
 question_4
 4. How many subdomains did you find in the ics.uci.edu domain? 
-0 total subdomains in ics.uci.edu 
+102 total subdomains in ics.uci.edu 
+accessibility.ics.uci.edu, 5
+acoi.ics.uci.edu, 62
+aiclub.ics.uci.edu, 1
+archive.ics.uci.edu, 535
+asterix.ics.uci.edu, 6
+betapro.proteomics.ics.uci.edu, 3
+cbcl.ics.uci.edu, 154
+cdb.ics.uci.edu, 6
+cert.ics.uci.edu, 8
+chenli.ics.uci.edu, 8
+circadiomics.ics.uci.edu, 5
+cml.ics.uci.edu, 140
+code.ics.uci.edu, 13
+computableplant.ics.uci.edu, 52
+cradl.ics.uci.edu, 17
+create.ics.uci.edu, 7
+cwicsocal18.ics.uci.edu, 10
+cyberclub.ics.uci.edu, 14
+cybert.ics.uci.edu, 1
+datalab.ics.uci.edu, 1
+dgillen.ics.uci.edu, 20
+duttgroup.ics.uci.edu, 85
+elms.ics.uci.edu, 2
+emj.ics.uci.edu, 27
+esl.ics.uci.edu, 5
+evoke.ics.uci.edu, 4
+flamingo.ics.uci.edu, 8
+fr.ics.uci.edu, 3
+frost.ics.uci.edu, 1
+futurehealth.ics.uci.edu, 102
+gitlab.ics.uci.edu, 2270
+grape.ics.uci.edu, 2
+graphics.ics.uci.edu, 1
+graphmod.ics.uci.edu, 1
+hai.ics.uci.edu, 5
+helpdesk.ics.uci.edu, 2
+hobbes.ics.uci.edu, 9
+hpi.ics.uci.edu, 3
+hub.ics.uci.edu, 1
+i-sensorium.ics.uci.edu, 5
+iasl.ics.uci.edu, 16
+ibook.ics.uci.edu, 6
+ieee.ics.uci.edu, 1
+industryshowcase.ics.uci.edu, 18
+intranet.ics.uci.edu, 4
+ipubmed.ics.uci.edu, 1
+isg.ics.uci.edu, 183
+jgarcia.ics.uci.edu, 22
+luci.ics.uci.edu, 4
+malek.ics.uci.edu, 1
+mcs.ics.uci.edu, 77
+mdogucu.ics.uci.edu, 5
+mds.ics.uci.edu, 18
+mhcid.ics.uci.edu, 14
+mlphysics.ics.uci.edu, 4
+mondego.ics.uci.edu, 3
+motifmap-rna.ics.uci.edu, 2
+motifmap.ics.uci.edu, 1
+mse.ics.uci.edu, 2
+mswe.ics.uci.edu, 11
+mupro.proteomics.ics.uci.edu, 2
+nalini.ics.uci.edu, 6
+ngs.ics.uci.edu, 1440
+old-reactions.ics.uci.edu, 4
+pastebin.ics.uci.edu, 1
+perennialpolycultures.ics.uci.edu, 1
+phpmyadmin.ics.uci.edu, 46
+plrg.ics.uci.edu, 54
+psearch.ics.uci.edu, 1
+radicle.ics.uci.edu, 1
+redmiles.ics.uci.edu, 4
+riscit.ics.uci.edu, 2
+rstudio-hub.ics.uci.edu, 1
+scale.ics.uci.edu, 6
+scratch.proteomics.ics.uci.edu, 3
+sdcl.ics.uci.edu, 186
+seal.ics.uci.edu, 38
+selectpro.proteomics.ics.uci.edu, 5
+sherlock.ics.uci.edu, 6
+sli.ics.uci.edu, 283
+sourcerer.ics.uci.edu, 1
+speedtest.ics.uci.edu, 1
+stairs.ics.uci.edu, 4
+statconsulting.ics.uci.edu, 4
+student-council.ics.uci.edu, 23
+swiki.ics.uci.edu, 282
+tad.ics.uci.edu, 1
+tastier.ics.uci.edu, 1
+testlab.ics.uci.edu, 5
+tippersweb.ics.uci.edu, 1
+transformativeplay.ics.uci.edu, 55
+tutors.ics.uci.edu, 39
+ugradforms.ics.uci.edu, 1
+unite.ics.uci.edu, 10
+vision.ics.uci.edu, 208
+wearablegames.ics.uci.edu, 6
+wics.ics.uci.edu, 523
+wiki.ics.uci.edu, 2
+www-db.ics.uci.edu, 22
+www.graphics.ics.uci.edu, 5
+www.informatics.ics.uci.edu, 1
+xtune.ics.uci.edu, 5
 

@@ -7,8 +7,9 @@ import json
 CHAR_THRESHOLD = 300
 MAX_SUBDOMAIN_THRESHOLD = 5
 STOP_WORDS = {'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', "can't", 'cannot', 'could', "couldn't", 'did', "didn't", 'do', 'does', "doesn't", 'doing', "don't", 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had', "hadn't", 'has', "hasn't", 'have', "haven't", 'having', 'he', "he'd", "he'll", "he's", 'her', 'here', "here's", 'hers', 'herself', 'him', 'himself', 'his', 'how', "how's", 'i', "i'd", "i'll", "i'm", "i've", 'if', 'in', 'into', 'is', "isn't", 'it', "it's", 'its', 'itself', "let's", 'me', 'more', 'most', "mustn't", 'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', "shan't", 'she', "she'd", "she'll", "she's", 'should', "shouldn't", 'so', 'some', 'such', 'than', 'that', "that's", 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', "there's", 'these', 'they', "they'd", "they'll", "they're", "they've", 'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', "wasn't", 'we', "we'd", "we'll", "we're", "we've", 'were', "weren't", 'what', "what's", 'when', "when's", 'where', "where's", 'which', 'while', 'who', "who's", 'whom', 'why', "why's", 'with', "won't", 'would', "wouldn't", 'you', "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves'}
+# contains a dictionary of counts of urls with same path but different queries (for trap detection)
 trap_subdomain_urls = dict()
-# contains a dictionary of text data of all the urls with the same path but different queries
+# simhash dictionaries
 simhash_dict = dict()
 simhash_indicies = SimhashIndex([(str(k), Simhash(get_features(v))) for k, v in simhash_dict.items()], k=3)
 
@@ -43,6 +44,7 @@ def extract_next_links(url, resp):
         return list()
     soup = BeautifulSoup(resp.raw_response.content, 'lxml') # convert the content of the website to BeautifulSoup
 
+    # check that the website contains enough characters to be considered
     if len(soup.get_text()) <= CHAR_THRESHOLD:
         return list()
 
@@ -73,13 +75,11 @@ def extract_next_links(url, resp):
     ##################################### Longest page for report #2
     words = [word.lower() for word in re.findall(r"[a-zA-Z][a-zA-Z0-9]+'?[a-zA-Z0-9]*", soup.get_text())]
     num_words = len(words)
-    # global max_words, max_word_link
     if max_words < num_words:
         max_words = num_words
         max_word_link = url
     
     ##################################### Most frequent words for report #3
-    # global frequency_dict
     for tok in words:
         if tok not in STOP_WORDS:
             if tok not in frequency_dict:
@@ -97,7 +97,9 @@ def extract_next_links(url, resp):
                 domainList[subDomain.hostname] += 1 #if already in dictionary increment the count
             else:
                 domainList[subDomain.hostname] = 1  #if not add the key to the dictionary with count of 1 as value
+    
 
+    ##################################### Main url retrieval
     urls = []
     for link in soup.find_all('a'): # retrieve all urls from the soup
         link = urljoin(url, link.get('href')) # convert relative url to absolute
@@ -147,21 +149,11 @@ def is_valid(url):
             return False
 
         # avoid repeated patterns
-        # r"^.*?(/.+?/).*?\1.*$"
-        # r'^.*(/\S+)\1+.*$'
         if re.match(r'^.*?(/.+?/).*?\1.*$', parsed.path.lower()) != None:
             return False
 
         ##################################### website trap detection (swiki, wiki, gitlab, etc.)
-        # for every path that we enter for websites such as swiki or wiki, only get max 
-        # threshold # of websites of each path/subdirectory and disregard the query
-        #
-        # We don't want to completely disregard all paths, but since accessing every
-        # possible query within the paths leads to a trap, we will only retrieve a 
-        # certain threshold amount from each path within the website.
-        #
-        # We saw that query specific links within the same path didn't have any
-        # additional useful information
+        # Only get a threshold number of urls with the same path (but different queries)
         trap_patterns = [r'.*swiki.*', r'.*wiki.*', r'.*elms.*', r'.*gitlab.*']
         if any(re.match(pattern, parsed.hostname.lower()) != None for pattern in trap_patterns):
             # url without the query
@@ -171,9 +163,7 @@ def is_valid(url):
             else:
                 trap_subdomain_urls[no_q] = trap_subdomain_urls.get(no_q, 0) + 1
 
-        ##################################### gitlab specific "traps"
-        # we will deem some parts of gitlab repos as pages with low information content
-        # such as project specific commit/commit histories
+        ##################################### gitlab specific traps
         if re.match(r'.*gitlab.*', parsed.hostname.lower()) != None:
             gitlab_filters =   [r'.*/commits/.*', 
                                 r'.*/commit/.*', 
